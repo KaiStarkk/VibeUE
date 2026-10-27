@@ -1013,9 +1013,10 @@ namespace
 	/** Find the JSON value supplied for a parameter name (case-insensitive), or null. */
 	TSharedPtr<FJsonValue> FindArgument(const FJsonObject& Args, const FString& ParamName)
 	{
-		for (const TPair<FString, TSharedPtr<FJsonValue>>& Pair : Args.Values)
+		for (const auto& Pair : Args.Values)
 		{
-			if (Pair.Key.Equals(ParamName, ESearchCase::IgnoreCase))
+			const FString Key = *Pair.Key; // FJsonObject keys are UE::FSharedString in 5.8
+			if (Key.Equals(ParamName, ESearchCase::IgnoreCase))
 			{
 				return Pair.Value.IsValid() ? Pair.Value : MakeShared<FJsonValueNull>();
 			}
@@ -1061,12 +1062,13 @@ namespace
 		}
 
 		// Reject keys that name no parameter (a typo must not silently fall back to a default).
-		for (const TPair<FString, TSharedPtr<FJsonValue>>& Pair : Args->Values)
+		for (const auto& Pair : Args->Values)
 		{
+			const FString Key = *Pair.Key; // FJsonObject keys are UE::FSharedString in 5.8
 			bool bKnown = false;
 			for (TFieldIterator<FProperty> It(Func); It && It->HasAnyPropertyFlags(CPF_Parm); ++It)
 			{
-				if (!It->HasAnyPropertyFlags(CPF_ReturnParm) && It->GetName().Equals(Pair.Key, ESearchCase::IgnoreCase))
+				if (!It->HasAnyPropertyFlags(CPF_ReturnParm) && It->GetName().Equals(Key, ESearchCase::IgnoreCase))
 				{
 					bKnown = true;
 					break;
@@ -1075,7 +1077,7 @@ namespace
 			if (!bKnown)
 			{
 				OutError = TEXT("UNKNOWN_ARG");
-				OutMessage = FString::Printf(TEXT("'%s' is not a parameter of %s."), *Pair.Key, *Func->GetName());
+				OutMessage = FString::Printf(TEXT("'%s' is not a parameter of %s."), *Key, *Func->GetName());
 				return false;
 			}
 		}

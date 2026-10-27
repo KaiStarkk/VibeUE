@@ -107,6 +107,7 @@ public class VibeUE : ModuleRules
 				"MessageLog",
 				"MovieScene",
 				"MovieSceneTracks",
+				"LevelSequence",          // For the SequenceTrackService tests' fixture sequence
 				"RenderCore",
 				"RHI",                    // For GMaxRHIShaderPlatform / GShaderPlatformForFeatureLevel (material diagnostics)
 				"EditorStyle",
